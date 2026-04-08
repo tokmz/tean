@@ -1,6 +1,6 @@
 {
   "name": "team",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Go 项目团队协作开发 Skills — 8 角色协同体系。支持新项目开发、现有项目维护、新功能迭代。触发词：'团队开发'、'team'、'帮我开发'、'组建团队'。",
   "author": {
     "name": "aikzy"
