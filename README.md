@@ -118,9 +118,12 @@ team/
 │   ├── pm.md
 │   ├── quality-feedback.md   # 质量反馈循环
 │   ├── quality-protocol.md   # 质量红线
+│   ├── quality-check.sh      # Go 项目质量检查脚本
+│   ├── quality-check-node.sh # Node.js 项目质量检查脚本
 │   ├── project-memory.md     # 项目记忆协议
 │   ├── reviewer.md
-│   └── tech-lead.md
+│   ├── tech-lead.md
+│   └── tool-usage-guide.md   # 工具使用决策树
 ├── skills/                   # Agent Skills
 │   ├── team/SKILL.md         # 主入口
 │   ├── architect/SKILL.md

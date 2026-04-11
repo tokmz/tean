@@ -208,3 +208,44 @@ Agent({
 2. **有依赖 = 串行** — Reviewer 必须等 Backend 和 Frontend 都完成才能启动
 3. **共享上下文** — 并行任务需要的共享信息（如接口定义）必须先产出并写入文件，在 prompt 中明确引用文件路径
 4. **一次性发起** — 并行任务必须在同一个消息中发起多个 Agent 调用，不能分多次发起
+
+### 并行任务上下文传递标准
+
+**共享文件位置**：
+```
+.claude/context/
+├── api-contract.md          # API 接口定义（Architect → Backend/Frontend）
+├── db-schema.md             # 数据库表结构（DBA → Backend）
+├── tech-decisions.md        # 技术决策（Architect → 所有角色）
+└── project-analysis.md      # 项目现状分析（Tech Lead → 所有角色）
+```
+
+**文件格式规范**：
+```markdown
+# API 接口定义
+
+## 用户模块
+
+### POST /api/v1/users
+**请求**：
+```json
+{"username": "string", "email": "string"}
+```
+
+**响应**：
+```json
+{"code": 0, "data": {"id": 1, "username": "..."}, "msg": "success"}
+```
+
+### GET /api/v1/users/:id
+...
+```
+
+**使用流程**：
+1. Architect 完成设计 → 写入 `.claude/context/api-contract.md`
+2. Tech Lead 启动并行任务时，在 prompt 中明确引用：
+   ```
+   "根据 .claude/context/api-contract.md 中的接口定义实现..."
+   ```
+3. Backend/Frontend 读取该文件 → 按契约实现
+4. 任务完成后，共享文件保留供 Reviewer 使用

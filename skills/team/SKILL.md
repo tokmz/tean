@@ -22,19 +22,25 @@ license: MIT
 
 ## 角色 & 引用
 
-| 角色 | 引用文件 | 职责 |
-|------|---------|------|
-| PM | `references/pm.md` | 需求分析、排期规划、进度追踪、验收 |
-| Tech Lead | `references/tech-lead.md` | 技术决策、方案评审 |
-| Architect | `references/architect.md` | 架构设计、技术选型、接口定义 |
-| DBA | `references/dba.md` | 数据库设计、SQL 优化、索引策略、数据安全 |
-| Backend | `references/backend.md` | Go API 开发、数据库、业务逻辑 |
-| Frontend | `references/frontend.md` | Web/移动端 UI 开发、API 对接 |
-| Reviewer | `references/reviewer.md` | 代码审核、安全审计、性能审查 |
-| DevOps | `references/devops.md` | CI/CD、容器化、部署 |
-| Quality | `references/quality-protocol.md` | 质量红线、自检清单、反借口表 |
-| Memory | `references/project-memory.md` | 项目记忆提取、跨会话复用 |
-| Feedback | `references/quality-feedback.md` | 质量打分、角色养成、画饼激励 |
+| 角色 | 引用文件 | 职责 | 自动加载时机 |
+|------|---------|------|-------------|
+| PM | `references/pm.md` | 需求分析、排期规划、进度追踪、验收 | 新项目模式 Step 1 |
+| Tech Lead | `references/tech-lead.md` | 技术决策、方案评审 | 所有模式启动时 |
+| Architect | `references/architect.md` | 架构设计、技术选型、接口定义 | 新项目/新功能需要设计时 |
+| DBA | `references/dba.md` | 数据库设计、SQL 优化、索引策略、数据安全 | 涉及数据库操作时 |
+| Backend | `references/backend.md` | Go API 开发、数据库、业务逻辑 | 后端开发任务时 |
+| Frontend | `references/frontend.md` | Web/移动端 UI 开发、API 对接 | 前端开发任务时 |
+| Reviewer | `references/reviewer.md` | 代码审核、安全审计、性能审查 | 代码实现完成后 |
+| DevOps | `references/devops.md` | CI/CD、容器化、部署 | 需要部署/CI 配置时 |
+| Quality | `references/quality-protocol.md` | 质量红线、自检清单、反借口表 | 所有模式启动时 |
+| Memory | `references/project-memory.md` | 项目记忆提取、跨会话复用 | 启动时自动检查 |
+| Feedback | `references/quality-feedback.md` | 质量打分、角色养成、画饼激励 | 任务交付时 |
+| Tools | `references/tool-usage-guide.md` | 工具使用决策树、效率优化 | 所有模式启动时 |
+
+**加载规则**：
+- 启动时自动加载：Tech Lead、Quality、Tools、Memory（如果存在）
+- 按需加载：根据任务类型加载对应角色的 references 文件
+- 避免重复加载：同一角色的 references 在一次对话中只加载一次
 
 ---
 
@@ -134,13 +140,36 @@ license: MIT
 
 ### 项目分析规范
 
-开始新功能前，必须先分析项目：
+开始新功能前，必须先分析项目。**使用以下自动化流程**：
 
-1. **技术栈识别** — go.mod、package.json、Dockerfile、Makefile
-2. **架构理解** — 目录结构、分层方式、模块划分
-3. **编码风格** — 错误处理方式、命名规范、响应格式
-4. **接口现状** — 已有哪些路由、哪些数据模型
-5. **约束确认** — 新功能必须遵循现有风格，不自创一套
+**Step 1: 快速识别项目类型**
+```
+并行读取关键文件（一次性发起）：
+- Read go.mod / package.json → 技术栈
+- Read Makefile / package.json scripts → 构建命令
+- Glob "**/*.go" / "**/*.ts" → 代码文件列表
+```
+
+**Step 2: 分析架构模式**
+```
+根据 Step 1 结果选择工具：
+- Go 项目: Grep "func.*Handler|func.*Service|func.*Repository" → 分层模式
+- 前端项目: Glob "src/**/*.{tsx,jsx,vue}" → 组件结构
+- 数据库: Glob "migrations/**/*.sql" 或 Grep "type.*struct.*gorm" → 表结构
+```
+
+**Step 3: 提取编码约束**
+```
+- Grep "type.*Response.*struct" → 响应格式
+- Grep "const.*Error" → 错误码规范
+- Read 任意一个 handler 文件 → 命名和错误处理风格
+```
+
+**工具选择原则**：
+- 找文件 → Glob（最快）
+- 找模式/关键字 → Grep（精准）
+- 看具体实现 → Read（详细）
+- 找引用 → LSP（准确）
 
 **分析输出模板**：
 
@@ -274,13 +303,23 @@ license: MIT
 ## 调度规则
 
 1. **先判断模式** — 新项目 / 新功能 / 维护，选对应流程
-2. **先读项目记忆** — 如果 `.claude/memory/team-project.md` 存在，先读取历史决策和踩坑记录
+2. **自动读取项目记忆** — 每次启动时自动检查并读取 `.claude/memory/team-project.md`（如果存在）
 3. **按需加载角色** — 根据模式读取需要的角色文件
 4. **现有项目先分析** — 新功能和维护模式必须先读代码理解现状
 5. **实现必须审核** — 代码必须经 Reviewer 审核
 6. **并行优先** — 无依赖的任务在同一个消息中用多个 Agent 调用并行执行，有依赖的任务必须等前置任务完成后再启动
 7. **质量不可妥协** — 任何角色交付都必须过质量卡 5 项
 8. **阶段完成写记忆** — 每个阶段完成后提取关键决策写入 `.claude/memory/team-project.md`（上限 10 条，只记 WHY 不记 WHAT）
+
+## 自动化检查清单
+
+**每次任务启动时自动执行**：
+```
+[ ] 检查 .claude/memory/team-project.md 是否存在 → 存在则读取
+[ ] 检查当前目录是否有代码 → 判断新项目/现有项目
+[ ] 新功能/维护模式 → 自动执行项目分析（见"项目分析规范"）
+[ ] 创建 .claude/context/ 目录（如果不存在）→ 用于并行任务共享上下文
+```
 
 ## 项目记忆
 
