@@ -123,7 +123,8 @@ team/
 │   ├── project-memory.md     # 项目记忆协议
 │   ├── reviewer.md
 │   ├── tech-lead.md
-│   └── tool-usage-guide.md   # 工具使用决策树
+│   ├── tool-usage-guide.md   # 工具使用决策树
+│   └── qi-framework.md       # Qi 框架开发规范
 ├── skills/                   # Agent Skills
 │   ├── team/SKILL.md         # 主入口
 │   ├── architect/SKILL.md
@@ -141,6 +142,8 @@ team/
 ## 技术规范
 
 - 后端：Go，分层架构（Handler → Service → Repository → Model）
+  - **Qi 框架**（推荐）：统一响应、业务错误、泛型绑定、OpenAPI 自动生成
+  - 其他框架：Gin / Echo / Fiber / Chi
 - 前端：React / Vue / Flutter / UniApp
 - 数据库：表设计规范、索引策略、迁移管理
 - 部署：Dockerfile、docker-compose、CI/CD、Makefile

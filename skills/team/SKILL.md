@@ -36,10 +36,12 @@ license: MIT
 | Memory | `references/project-memory.md` | 项目记忆提取、跨会话复用 | 启动时自动检查 |
 | Feedback | `references/quality-feedback.md` | 质量打分、角色养成、画饼激励 | 任务交付时 |
 | Tools | `references/tool-usage-guide.md` | 工具使用决策树、效率优化 | 所有模式启动时 |
+| Qi Framework | `references/qi-framework.md` | Qi 框架开发规范、最佳实践 | 检测到 Qi 框架时 |
 
 **加载规则**：
 - 启动时自动加载：Tech Lead、Quality、Tools、Memory（如果存在）
 - 按需加载：根据任务类型加载对应角色的 references 文件
+- 框架特定：检测到 Qi 框架时自动加载 qi-framework.md
 - 避免重复加载：同一角色的 references 在一次对话中只加载一次
 
 ---
@@ -150,10 +152,18 @@ license: MIT
 - Glob "**/*.go" / "**/*.ts" → 代码文件列表
 ```
 
+**识别 Qi 框架**：
+- `go.mod` 中有 `github.com/tokmz/qi` → 使用 Qi 框架
+- 响应格式为 `{"code": 0, "message": "success", "data": {}, "trace_id": "..."}` → Qi 框架
+- 代码中有 `qi.New()` 或 `qi.Context` → Qi 框架
+- **如果识别到 Qi 框架，必须加载 `references/qi-framework.md` 并遵循其规范**
+
 **Step 2: 分析架构模式**
 ```
 根据 Step 1 结果选择工具：
-- Go 项目: Grep "func.*Handler|func.*Service|func.*Repository" → 分层模式
+- Go 项目: 
+  - Qi 框架: Grep "qi.Context|qi.Bind|qi.New" → 确认 Qi 使用方式
+  - 其他框架: Grep "func.*Handler|func.*Service|func.*Repository" → 分层模式
 - 前端项目: Glob "src/**/*.{tsx,jsx,vue}" → 组件结构
 - 数据库: Glob "migrations/**/*.sql" 或 Grep "type.*struct.*gorm" → 表结构
 ```

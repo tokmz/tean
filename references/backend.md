@@ -28,7 +28,7 @@ triggers:
 
 | 类别 | 可选方案 |
 |------|---------|
-| Web 框架 | gin / echo / fiber / chi / 标准库 net/http |
+| Web 框架 | **qi** / gin / echo / fiber / chi / 标准库 net/http |
 | 数据库访问 | GORM / ent / sqlx / sqlc / 原生 database/sql |
 | 配置管理 | viper / koanf / envconfig |
 | 日志 | slog(Go 1.21+) / zap / zerolog |
@@ -36,6 +36,12 @@ triggers:
 | 缓存 | go-redis / freecache / ristretto |
 | 鉴权 | golang-jwt / casbin |
 | 参数验证 | validator / ozzo-validation |
+
+**Qi 框架（推荐）**：
+- 基于 Gin，提供统一响应封装、业务错误系统、泛型请求绑定
+- 内置 OpenAPI 3.0 文档生成、请求日志、链路追踪
+- 集成多级缓存、数据库封装（GORM）、优雅关闭
+- 详见 `references/qi-framework.md`
 
 ## 分层规范
 
